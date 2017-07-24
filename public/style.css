@@ -1,0 +1,68 @@
+body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-family: Arial;
+	text-align: center;
+	background-color: #C9CfD8;
+}
+
+header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+  margin-bottom: 50px;
+}
+
+#name-and-info {
+	display: inline-block;
+}
+
+#name-and-info h1 {
+	margin-bottom: 5px;
+}
+
+#portfolio-pic {
+	display: inline-block;
+	text-align: right;
+	padding-top: 20px;
+	padding-right: 20px;
+	/*margin: 10px;*/
+}
+
+#img-circle {
+  border-radius: 50%;
+  max-width: 30%;
+  max-height: 30%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:link, a:visited {
+	color: #4D6C9E;
+}
+
+hr {
+	border-color: #123772;
+	width: 100%;
+}
+
+#projects-link {
+	font-size: 3rem;
+}
+
+footer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+}
+
+footer a {
+	display: inline-block;
+}
