@@ -9,14 +9,21 @@ body {
 }
 
 header {
+	box-sizing: border-box;
+	width: 100%;
 	display: flex;
 	flex-direction: row;
-	justify-content: space-between;
+	justify-content: space-around;
   margin-bottom: 50px;
+  padding-top: 20px;
 }
 
 #name-and-info {
-	display: inline-block;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	align-content: center;
 }
 
 #name-and-info h1 {
@@ -24,17 +31,18 @@ header {
 }
 
 #portfolio-pic {
-	display: inline-block;
-	text-align: right;
-	padding-top: 20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+/*	padding-top: 20px;
 	padding-right: 20px;
-	/*margin: 10px;*/
+*/	/*margin: 10px;*/
 }
 
 #img-circle {
   border-radius: 50%;
   max-width: 30%;
-  max-height: 30%;
+  max-height: auto;
 }
 
 a {
