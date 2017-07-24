@@ -54,6 +54,7 @@ a:link, a:visited {
 }
 
 #footer-break {
+	display: block;
 	border-color: #123772;
 	width: 100%;
 }
@@ -67,10 +68,12 @@ footer {
 	justify-content: center;
 	align-items: center;
 	position: fixed;
+	flex-wrap: wrap;
 	bottom: 0px;
 	width: 100%;
 }
 
 footer a {
 	display: inline-block;
+	margin: auto 5px 5px 5px;
 }
