@@ -1,5 +1,9 @@
 require 'sinatra'
+require './models/blogs.rb'
 
-get "/" do
-	File.read(File.join("public", "index.html"))
+blog_dir = './public/blog_posts/'
+
+get '/' do
+	@blogs = Blog.new(blog_dir)
+	erb :index
 end

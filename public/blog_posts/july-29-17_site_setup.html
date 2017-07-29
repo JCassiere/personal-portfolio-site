@@ -1,0 +1,38 @@
+<h2 class="post-title">Setting Up My Site</h2>
+<h6 class="post-date">July 29, 2017</h6>
+<p class="blog-text">
+	I set up a blog for my portfolio site today using sinatra with ERB.  This allows me to keep the HTML for each post in a separate file, and my site will automatically update as I add more posts.  I created a model, <span class="inline-code">Blog</span>, that reads through a directory containing all my blog posts and saves the HTML for each post in an array. My <span class="inline-code">blogs.rb</span> file is below:
+</p>
+<p class="code-snippet">
+<span class='ruby-keyword'>require</span><span class='ruby-string'> 'io/console'</span><br>
+<br>
+
+<span class='ruby-keyword'>class</span> <span class='ruby-header'>Blog</span><br>
+&emsp;<span class='ruby-keyword'>attr_reader</span><span class="ruby-symbol"> :posts</span><br>
+<br>
+&emsp;<span class='ruby-keyword'>def</span> <span class='ruby-header'>initialize</span>(<span class="ruby-argument">blog_dir</span>)<br>
+&emsp;&emsp;@posts <span class='ruby-keyword'>=</span> []<br>
+&emsp;&emsp;blogs <span class='ruby-keyword'>=</span> (<span class="ruby-module">Dir</span>.entries(blog_dir).sort_by {|<span class="ruby-argument">file</span>| <span class="ruby-module">File</span>.mtime(blog_dir <span class='ruby-keyword'>+</span> file)}).reverse<br>
+&emsp;&emsp;blogs.each <span class='ruby-keyword'>do</span> |<span class="ruby-argument">file</span>|<br>
+  &emsp;&emsp;&emsp;<span class='ruby-keyword'>unless</span> (file <span class='ruby-keyword'>==</span> <span class='ruby-string'> '.'</span> or file <span class='ruby-keyword'>==</span> <span class='ruby-string'> '..'</span>)<br>
+  	&emsp;&emsp;&emsp;&emsp;posts <span class='ruby-keyword'><<</span> <span class="ruby-module">IO</span>.read(blog_dir <span class='ruby-keyword'>+</span> file)<br>
+  &emsp;&emsp;&emsp;<span class='ruby-keyword'>end</span><br>
+&emsp;&emsp;<span class='ruby-keyword'>end</span><br>
+&emsp;<span class='ruby-keyword'>end</span><br>
+<span class='ruby-keyword'>end</span><br>
+
+<p>
+	And here is the sinatra server file:
+</p>
+
+<p class="code-snippet">
+<span class='ruby-keyword'>require</span><span class='ruby-string'> 'sinatra'</span><br>
+<span class='ruby-keyword'>require</span><span class='ruby-string'> '/.models/blogs.rb'</span><br>
+<br>
+blog_dir <span class='ruby-keyword'>=</span> <span class='ruby-string'> './public/blog_posts/'</span><br>
+<br>
+get '/' <span class='ruby-keyword'>do</span><br>
+	&emsp;@blogs <span class='ruby-keyword'>=</span> <span class="ruby-module">Blog</span>.<span class='ruby-keyword'>new</span>(blog_dir)<br>
+	&emsp;erb <span class="ruby-symbol">:index</span><br>
+<span class='ruby-keyword'>end</span><br>
+</p>

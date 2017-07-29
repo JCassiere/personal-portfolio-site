@@ -17,36 +17,28 @@ body {
 	align-items: center;
 	font-family: Arial;
 	text-align: center;
-	background-color: white;
+	background-color: #EFF0F2;
 	line-height: 1.5;
 	padding: auto 4em;
+	color: #555;
 }
 
-#menu-bar {
-	display: flex;
-	justify-content: flex-start;
-	width: 100%;
-  top: 0px;
-  font-size: 2vw;
-}
-
-#menu-bar a {
-  display: inline-block;
-  margin: auto 2vw;
+h1, h2, strong {
+	color: #333;
 }
 
 header {
-	background-image: url("../mountain-background.jpg");
+	/*background-image: url("../mountain-background.jpg");*/
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;
 	width: 100%;
-	height: 20rem;
+	height: auto;
 	display: flex;
-	flex-direction: column;
-	justify-content: space-around;
+	flex-direction: row;
+	justify-content: center;
   align-items: center;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 /*  padding-top: 20px;
 */}
 
@@ -56,11 +48,23 @@ header {
 	justify-content: center;
 	align-items: center;
 	align-content: center;
+	color: black;
+	margin-right: 10rem;
 }
 
 #name-and-info h1 {
 	vertical-align: top;
 	margin-bottom: 5px;
+}
+
+.link-container a {
+	display: inline-block;
+	margin: auto 5px 5px 5px;
+	font-size: 2rem;
+}
+
+.link-container a:hover {
+	transform: scale(1.2, 1.2);
 }
 
 #portfolio-pic {
@@ -72,24 +76,89 @@ header {
 #img-circle {
 	display: inline-block;
   border-radius: 50%;
-  max-width: 6rem;
+  max-width: 11rem;
   max-height: auto;
 }
 
 #bio {
 	box-sizing: border-box;
 	text-align: center;
+	width: 80%;
 }
 
+#blog {
+	list-style: none;
+	width: 80%;
+	text-align: left;
+	padding: 0;
+}
+
+.blog-post {
+  margin: 2em auto;
+}
+
+.post-title {
+	font-size: 2em;
+	width: 100%;
+	border-bottom: 1px solid #2B323D;
+	margin-bottom: 0;
+}
+
+.post-date {
+	font-size: 1em;
+	font-style: italic;
+	width: 100%;
+	text-align: right;
+	margin: 0;
+}
+
+.blog-text {
+
+}
+
+.inline-code, .code-snippet {
+  font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New;
+  font-size: 0.8em;
+}
+
+.inline-code {
+	background-color: #D6D8DB;
+}
+
+.code-snippet {
+	background-color: #33312C;
+	border-radius: 5px;
+  box-shadow: 3px 3px 5px grey;
+	color: white;
+	padding: 1em;
+}
+
+.ruby-keyword {
+	color: #F41151;
+}
+
+.ruby-string {
+	color: #DBC164;
+}
+
+.ruby-module {
+	color: #5ABCED;
+	font-style: italic;
+}
+
+.ruby-argument {
+	color: orange;
+	font-style: italic;
+}
+
+.ruby-symbol {
+	color: #B84FF9;
+}
 
 #footer-break {
 	display: block;
-	border-color: #123772;
+	border-color: #2B323D;
 	width: 100%;
-}
-
-#projects-link {
-	font-size: 3rem;
 }
 
 footer {
@@ -99,9 +168,4 @@ footer {
   flex-wrap: wrap;
 	bottom: 0px;
 	width: 100%;
-}
-
-footer a {
-	display: inline-block;
-	margin: auto 5px 5px 5px;
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utc-8">
+	<title>Joe Cassiere's Homepage</title>
+  <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="/css/styles.css">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+  <header>
+    <section id="name-and-info">
+      <h1>Joe Cassiere</h1>
+      <a href="mailto:joseph.g.cassiere+public@gmail.com">joseph.g.cassiere@gmail.com</a>
+      <p>Miami, FL</p>
+      <section class="link-container">
+        <a href="https://www.linkedin.com/in/joseph-cassiere-66535061/"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+        <a href="https://github.com/JCassiere"><i class="fa fa-github" aria-hidden="true"></i></a>
+      </section>
+    </section>
+
+    <img id=img-circle src="/portfolio_pic.jpg" alt="Joe Cassiere Portfolio Picture">
+  </header>
+
+  <p id="bio">I'm a chemical engineer turned software engineer who wants to find ways to solve real-world problems, small and large, through code.  In my free time, I enjoy skiing, playing soccer, and cooking and eating food that's beyond a reasonable level of spiciness.</p>
+
+  <ul id="blog">
+    <% @blogs.posts.each do |post| %>
+      <li class="blog-post"><%= post %></li>
+    <% end %>
+  </ul>
+
+  
+  <footer>
+    <hr id="footer-break">
+    <section class="link-container">
+      <a href="https://www.linkedin.com/in/joseph-cassiere-66535061/"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+      <a href="https://github.com/JCassiere"><i class="fa fa-github" aria-hidden="true"></i></a>
+    </section>
+  </footer>
+</body>
+</html>
