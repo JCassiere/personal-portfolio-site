@@ -31,7 +31,7 @@
 <br>
 blog_dir <span class='ruby-keyword'>=</span> <span class='ruby-string'> './public/blog_posts/'</span><br>
 <br>
-get '/' <span class='ruby-keyword'>do</span><br>
+get <span class='ruby-string'>'/'</span> <span class='ruby-keyword'>do</span><br>
 	&emsp;@blogs <span class='ruby-keyword'>=</span> <span class="ruby-module">Blog</span>.<span class='ruby-keyword'>new</span>(blog_dir)<br>
 	&emsp;erb <span class="ruby-symbol">:index</span><br>
 <span class='ruby-keyword'>end</span><br>
