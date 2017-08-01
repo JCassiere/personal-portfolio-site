@@ -1,0 +1,126 @@
+<h2 class="post-title">Ruby References</h2>
+<h6 class="post-date">August 1, 2017</h6>
+<p class="blog-text">
+	I was working on my implementation of an Adjacency Matrix, when I ran into a strange issue.  One of my tests was failing (I've included some code that was run before the test as well):
+</p>
+
+<p class="code-snippet">
+
+    before (<span class="ruby-symbol">:each</span>) <span class="ruby-keyword">do</span><br>
+      &emsp;@graph.add_edge(3, 5)<br>
+    <span class="ruby-keyword">end</span><br>
+  <br>
+  1) AdjacencyMatrix adding a bidirectional edge successfully adds an edge<br>
+     &emsp;Failure/Error:<br>
+       &emsp;&emsp;expect(@graph.matrix).to eq([<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0],<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0],<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0],<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 1],<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0],<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 0]])<br>
+       <br>
+       &emsp;&emsp;&emsp;expected: [<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 0, 0, 0], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 0]] <br>
+       <br>
+       &emsp;&emsp;&emsp;got: [<br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1], <br>
+       &emsp;&emsp;&emsp;[0, 0, 0, 1, 0, 1]] <br>
+     <br>
+       &emsp;&emsp;(compared using ==)<br>
+</p>
+
+<p class="blog-text">
+	So my <span class="inline-code">add_edge</span> method was changing more than I expected.  That method is below:
+</p>
+
+<p class="code-snippet">
+  <span class="ruby-keyword">def</span> <span class='ruby-header'>add_edge</span>(<span class="ruby-argument">x</span>, <span class="ruby-argument">y</span>, <span class="ruby-argument">dir=false</span>)<br>
+    &emsp;@matrix[y][x] <span class="ruby-keyword">=</span> 1<br>
+    &emsp;<span class="ruby-keyword">unless</span> dir<br>
+      &emsp;&emsp;@matrix[x][y] <span class="ruby-keyword">=</span> 1<br>
+    &emsp;<span class="ruby-keyword">end</span><br>
+  <span class="ruby-keyword">end</span>
+</p>
+
+<p class="blog-text">
+	I couldn't find anything logically wrong with this method.  It should only have been changing the numbers located at <span class="inline-code">@matrix[x][y]</span> and <span class="inline-code">@matrix[y][x]</span>.  I next went to the <span class="inline-code">initialize</span> method of the <span class="inline-code">AdjacencyMatrix</span> class:
+</p>
+
+<p class="code-snippet">
+<span class="ruby-keyword">def</span> <span class='ruby-header'>initialize</span>(<span class="ruby-argument">num_vertexes</span>)<br>
+  &emsp;@num_vertexes <span class="ruby-keyword">=</span> num_vertexes<br>
+  &emsp;@matrix <span class="ruby-keyword">=</span> <span class="ruby-module">Array</span>.<span class="ruby-keyword">new</span>(num_vertexes, <span class="ruby-module">Array</span>.<span class="ruby-keyword">new</span>(num_vertexes, 0))<br>
+<span class="ruby-keyword">end</span> <span class='ruby-header'><br>
+</p>
+
+<p class="blog-text">
+  I started doing some research into what could be happening.  I eventually stumbled upon the idea that it could be something to do with how I set up the <span class="inline-code">@matrix</span> attribute.  I dug a little deeper, and it seemed that when I used this line:
+</p>
+
+<p class="code-snippet">
+@matrix <span class="ruby-keyword">=</span> <span class="ruby-module">Array</span>.<span class="ruby-keyword">new</span>(num_vertexes, <span class="ruby-module">Array</span>.<span class="ruby-keyword">new</span>(num_vertexes, 0))<br>
+</p>
+
+<p class="blog-text">
+  the <span class="inline-code">@matrix</span> attribute would be referencing the same inner array object over and over.  So if I changed something in the first row of the matrix, the same change would appear in each subsequent row of the matrix as well.  Therefore, all I needed to do was make an array of arrays, in which each inner array was a separate object:
+</p>
+
+<p class="code-snippet">
+<span class="ruby-keyword">def</span> <span class='ruby-header'>initialize</span>(<span class="ruby-argument">num_vertexes</span>)<br>
+  &emsp;@num_vertexes <span class="ruby-keyword">=</span> num_vertexes<br>
+  &emsp;@matrix <span class="ruby-keyword">=</span> []
+  num_vertexes.times <span class="ruby-keyword">do</span> |<span class="ruby-argument">i</span>|<br>
+    &emsp;&emsp;inner_array <span class="ruby-keyword">=</span> []
+    num_vertexes.times <span class="ruby-keyword">do</span> |<span class="ruby-argument">j</span>|<br>
+      &emsp;&emsp;&emsp;inner_array <span class="ruby-keyword"><<</span> 0<br>
+    &emsp;&emsp;<span class="ruby-keyword">end</span><br>
+    &emsp;&emsp;@matrix <span class="ruby-keyword"><<</span> inner_array<br>
+  &emsp;<span class="ruby-keyword">end</span><br>
+<span class="ruby-keyword">end</span>
+</p>
+
+
+
+<!-- <p class="code-snippet">
+<span class='ruby-keyword'>require</span><span class='ruby-string'> 'io/console'</span><br>
+<br>
+
+<span class='ruby-keyword'>class</span> <span class='ruby-header'>Blog</span><br>
+&emsp;<span class='ruby-keyword'>attr_reader</span><span class="ruby-symbol"> :posts</span><br>
+<br>
+&emsp;<span class='ruby-keyword'>def</span> <span class='ruby-header'>initialize</span>(<span class="ruby-argument">blog_dir</span>)<br>
+&emsp;&emsp;@posts <span class='ruby-keyword'>=</span> []<br>
+&emsp;&emsp;blogs <span class='ruby-keyword'>=</span> (<span class="ruby-module">Dir</span>.entries(blog_dir).sort_by {|<span class="ruby-argument">file</span>| <span class="ruby-module">File</span>.mtime(blog_dir <span class='ruby-keyword'>+</span> file)}).reverse<br>
+&emsp;&emsp;blogs.each <span class='ruby-keyword'>do</span> |<span class="ruby-argument">file</span>|<br>
+  &emsp;&emsp;&emsp;<span class='ruby-keyword'>unless</span> (file <span class='ruby-keyword'>==</span> <span class='ruby-string'> '.'</span> or file <span class='ruby-keyword'>==</span> <span class='ruby-string'> '..'</span>)<br>
+  	&emsp;&emsp;&emsp;&emsp;posts <span class='ruby-keyword'><<</span> <span class="ruby-module">IO</span>.read(blog_dir <span class='ruby-keyword'>+</span> file)<br>
+  &emsp;&emsp;&emsp;<span class='ruby-keyword'>end</span><br>
+&emsp;&emsp;<span class='ruby-keyword'>end</span><br>
+&emsp;<span class='ruby-keyword'>end</span><br>
+<span class='ruby-keyword'>end</span><br>
+
+<p>
+	And here is the sinatra server file:
+</p>
+
+<p class="code-snippet">
+<span class='ruby-keyword'>require</span><span class='ruby-string'> 'sinatra'</span><br>
+<span class='ruby-keyword'>require</span><span class='ruby-string'> '/.models/blogs.rb'</span><br>
+<br>
+blog_dir <span class='ruby-keyword'>=</span> <span class='ruby-string'> './public/blog_posts/'</span><br>
+<br>
+get <span class='ruby-string'>'/'</span> <span class='ruby-keyword'>do</span><br>
+	&emsp;@blogs <span class='ruby-keyword'>=</span> <span class="ruby-module">Blog</span>.<span class='ruby-keyword'>new</span>(blog_dir)<br>
+	&emsp;erb <span class="ruby-symbol">:index</span><br>
+<span class='ruby-keyword'>end</span><br>
+</p> -->
