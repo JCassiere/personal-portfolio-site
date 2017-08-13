@@ -131,6 +131,7 @@ header {
   box-shadow: 3px 3px 5px grey;
 	color: white;
 	padding: 1em;
+	text-align: left
 }
 
 .ruby-keyword {
@@ -153,6 +154,10 @@ header {
 
 .ruby-symbol {
 	color: #B84FF9;
+}
+
+.ruby-function {
+	color: #04ed08;
 }
 
 #footer-break {

@@ -1,0 +1,121 @@
+<h2 class="post-title">Converting Ruby to HTML Code</h2>
+<h6 class="post-date">August 13, 2017</h6>
+<p class="blog-text">
+	The most frustrating things about posting to my site so far has been having to convert Ruby code snippets to HTML.  Every <span class="inline-code">end</span>, <span class="inline-code">if</span>, and <span class="inline-code">do</span> needs to be wrapped in its own <span class="inline-code">&lt;span></span> element, and I haven't seen any gems that make this job easier.  So, I wrote a script to automate the conversion of Ruby code into HTML.  Here it is:
+</p>
+
+<p class='code-snippet'>require <span class='ruby-string'>"./keywords.rb"</span>
+<br>
+<br><span class='ruby-keyword'>class </span><span class='ruby-function'>HTMLConverter
+</span><br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>initialize</span>(<span class='ruby-argument'>read_file</span>, <span class='ruby-argument'>write_file</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file <span class='ruby-keyword'>=</span> open(write_file, <span class='ruby-string'>'w'</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;p class='code-snippet'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;rbkeys <span class='ruby-keyword'>=</span> <span class='ruby-module'>RubyKeywords</span>.new
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-module'>File</span>.readlines(read_file).each do |<span class='ruby-argument'>line</span>|
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> white_space(line, 0)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>while </span>ind <span class='ruby-keyword'><</span> line.length
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>line[ind<span class='ruby-keyword'>..-</span>1].start_with?(<span class='ruby-string'>"def "</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> function_to_html(line, ind)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>elsif</span> line[ind<span class='ruby-keyword'>..-</span>1].start_with?(<span class='ruby-string'>"class "</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> function_to_html(line, ind, <span class='ruby-string'>"class "</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>line[ind] <span class='ruby-keyword'>&&</span> line[ind] <span class='ruby-keyword'>==</span> line[ind].upcase <span class='ruby-keyword'>&&</span> <span class='ruby-string'>/[[:alpha:]]/</span>.match(line[ind])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> module_to_html(line, ind)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> ruby_keyword(rbkeys, line, ind)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>case </span>line[ind]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>when </span><span class='ruby-string'>"'"</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> html_string(line, ind)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>when </span><span class='ruby-string'>'"'</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> html_string(line, ind, <span class='ruby-string'>'"'</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>when </span><span class='ruby-string'>"/"</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>=</span> html_string(line, ind, <span class='ruby-string'>"/"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>else</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(line[ind])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;br>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/p>"</span>)
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>function_to_html</span>(<span class='ruby-argument'>line</span>, <span class='ruby-argument'>ind</span>, <span class='ruby-argument'>declaration = "def "</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;span class='ruby-keyword'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(declaration)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> declaration.length
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;span class='ruby-function'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>while </span>line[ind] <span class='ruby-keyword'>!=</span> <span class='ruby-string'>"("</span> <span class='ruby-keyword'>&&</span> ind <span class='ruby-keyword'><</span> line.length
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(line[ind])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>ind <span class='ruby-keyword'><</span> line.length
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"(&lt;span class='ruby-argument'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>until </span>line[ind] <span class='ruby-keyword'>==</span> <span class='ruby-string'>")"</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>line[ind] <span class='ruby-keyword'>==</span> <span class='ruby-string'>","</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>, &lt;span class='ruby-argument'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 2
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>else</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(line[ind])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>module_to_html</span>(<span class='ruby-argument'>line</span>, <span class='ruby-argument'>ind</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;span class='ruby-module'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>until </span>[<span class='ruby-string'>"."</span>, <span class='ruby-string'>"["</span>].include?line[ind]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(line[ind])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>white_space</span>(<span class='ruby-argument'>line</span>, <span class='ruby-argument'>ind</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>while </span>line[ind<span class='ruby-keyword'>..-</span>1].start_with?(<span class='ruby-string'>"  "</span>) <span class='ruby-keyword'>||</span> line[ind<span class='ruby-keyword'>..-</span>1].start_with?(<span class='ruby-string'>"	"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&amp;nbsp;&amp;nbsp;"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>line[ind<span class='ruby-keyword'>..-</span>1].start_with?(<span class='ruby-string'>"  "</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 2
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>else</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> 1
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>html_string</span>(<span class='ruby-argument'>line</span>, <span class='ruby-argument'>ind</span>, <span class='ruby-argument'>delim = "'"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;span class='ruby-string'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(line[ind<span class='ruby-keyword'>..</span>(line[ind<span class='ruby-keyword'>+</span>1<span class='ruby-keyword'>..-</span>1].index(delim)<span class='ruby-keyword'>+</span>ind<span class='ruby-keyword'>+</span>1)])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> line[ind+1<span class='ruby-keyword'>..-</span>1].index(delim)<span class='ruby-keyword'>+</span>2
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>def </span><span class='ruby-function'>ruby_keyword</span>(<span class='ruby-argument'>rbkeys</span>, <span class='ruby-argument'>line</span>, <span class='ruby-argument'>ind</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;rbkeys.keywords.each do |<span class='ruby-argument'>kw</span>|
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>if </span>line[ind<span class='ruby-keyword'>..-</span>1].start_with?(kw) <span class='ruby-keyword'>&&</span> <span class='ruby-keyword'>!</span>(<span class='ruby-string'>/[[:alpha:]]/</span>.match(line[ind<span class='ruby-keyword'>-</span>1]))
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;span class='ruby-keyword'>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(kw)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@write_file.write(<span class='ruby-string'>"&lt;/span>"</span>)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ind <span class='ruby-keyword'>+=</span> kw.length
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>break</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;ind
+<br>&nbsp;&nbsp;<span class='ruby-keyword'>end</span>
+<br><span class='ruby-keyword'>end</span>
+<br>
+<br><span class='ruby-module'>HTMLConverter</span>.new(<span class='ruby-module'>ARGV</span>[0], <span class='ruby-module'>ARGV</span>[1])
+<br>
+<br></p>
+
+<p class="blog-text">
+	It's not perfect, but it will save me a lot of time.  I'm sure this script will evolve as I run into more edge cases going forward.  The ruby code for the converter and the associated CSS styles can be found on <a href="https://github.com/JCassiere/code-snippet-to-html">GitHub</a>.
+</p>
